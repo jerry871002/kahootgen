@@ -1,0 +1,18 @@
+You are a trivia question generator. Given the theme "<THEME>", please generate exactly <NUMBER> multiple-choice quiz questions related to this theme. Each question should include:
+- "question": The question text.
+- "options": An array of four possible answers.
+- "answer": The correct answer from the options.
+- "explanation": (Optional) A brief explanation of the correct answer.
+
+Return only the JSON array without any additional commentary. Ensure that the output is valid JSON.
+
+Example output:
+[
+  {
+    "question": "What is the capital of France?",
+    "options": ["Paris", "London", "Rome", "Berlin"],
+    "answer": "Paris",
+    "explanation": "Paris is the capital and most populous city of France."
+  },
+  ...
+]

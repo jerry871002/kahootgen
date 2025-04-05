@@ -1,0 +1,5 @@
+# API key
+.env
+
+# virtual environment
+venv/
