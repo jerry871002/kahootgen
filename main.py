@@ -1,11 +1,12 @@
-from dotenv import load_dotenv
-from openai import OpenAI
-from typing import Any
-import openpyxl
-import json
 import argparse
-import random
+import json
 import logging
+import random
+from typing import Any
+
+import openpyxl  # type: ignore
+from dotenv import load_dotenv
+from openai import OpenAI  # type: ignore
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,7 +14,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def main(themes: list[str], num_questions: int) -> None:
+def main(themes: list[str], num_questions: int, output_path: str) -> None:
     # load OPENAI_API_KEY from .env file
     load_dotenv()
     client = OpenAI()
@@ -21,13 +22,20 @@ def main(themes: list[str], num_questions: int) -> None:
     questions = []
     for theme in themes:
         prompt = generate_prompt(theme, num_questions)
-        response = client.responses.create(model='gpt-4o', input=prompt)
-        logger.info(f'Response for theme "{theme}": {response.output_text}')
-        questions.extend(json.loads(response.output_text))
+        while True:
+            response = client.responses.create(model='gpt-4o', input=prompt)
+            logger.info(f'Response for theme "{theme}": {response.output_text}')
+            try:
+                questions.extend(json.loads(response.output_text))
+                break
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to decode JSON: {e}")
+                logger.info("Retrying with the same prompt...")
+                continue
 
     random.shuffle(questions)
 
-    generate_kahoot_quiz_xlsx(questions)
+    generate_kahoot_quiz_xlsx(questions, output_path)
 
 def generate_prompt(theme: str, num_questions: int) -> str:
     with open('prompt.txt', 'r') as file:
@@ -38,7 +46,7 @@ def generate_prompt(theme: str, num_questions: int) -> str:
 
     return prompt
 
-def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]]) -> None:
+def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]], output_path: str) -> None:
     template_path = 'KahootQuizTemplate.xlsx'
     workbook = openpyxl.load_workbook(template_path)
     sheet = workbook['Sheet1']
@@ -60,7 +68,6 @@ def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]]) -> None:
         # + 1 because Kahoot template uses 1-based indexing for answers
         sheet[f'{ANSWER_COLUMN}{row}'] = question['options'].index(question['answer']) + 1
 
-    output_path = 'KahootQuizOutput.xlsx'
     workbook.save(output_path)
 
 if __name__ == '__main__':
@@ -77,6 +84,12 @@ if __name__ == '__main__':
         default=5,
         help="Number of questions to generate for each theme"
     )
+    parser.add_argument(
+        '--output', '-o',
+        type=str,
+        default='KahootQuizOutput.xlsx',
+        help="Output file name for the generated quiz"
+    )
     args = parser.parse_args()
 
-    main(args.themes, args.num_questions)
+    main(args.themes, args.num_questions, args.output)
