@@ -1,8 +1,7 @@
-You are a trivia question generator. Given the theme "<THEME>", please generate exactly <NUM_QUESTIONS> multiple-choice quiz questions related to this theme. Each question should include:
+You are a trivia question generator. Given the theme "<THEME>", please generate exactly <NUM_QUESTIONS> multiple-choice quiz questions related to this theme in <LANGUAGE>. Each question should include:
 - "question": The question text.
 - "options": An array of four possible answers.
 - "answer": The correct answer from the options.
-- "explanation": (Optional) A brief explanation of the correct answer.
 
 Return only the JSON array without any explanations outside of the JSON (no intro, no markdown, no commentary). Ensure that the output is valid and properly formatted JSON, with no trailing commas.
 
@@ -11,8 +10,7 @@ Example output:
   {
     "question": "What is the capital of France?",
     "options": ["Paris", "London", "Rome", "Berlin"],
-    "answer": "Paris",
-    "explanation": "Paris is the capital and most populous city of France."
+    "answer": "Paris"
   },
   ...
 ]
