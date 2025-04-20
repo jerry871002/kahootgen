@@ -1,6 +1,6 @@
 # KahootGen
 
-KahootGen is a Python-based tool that uses OpenAI's GPT model to generate multiple-choice quiz questions based on user-defined themes. The generated questions are formatted into a Kahoot-compatible Excel file, making it easy to create engaging quizzes.
+KahootGen is a Python-based tool that uses OpenAI's GPT model to generate multiple-choice quiz questions based on user-defined themes. The generated questions are formatted into a Kahoot-compatible Excel file, making it easy to import and create engaging quizzes in Kahoot.
 
 ## Features
 
@@ -37,25 +37,23 @@ KahootGen is a Python-based tool that uses OpenAI's GPT model to generate multip
 
 ## Usage
 
-Run the script using the following command:
-
-```bash
-python main.py --themes "Theme1" "Theme2" --num_questions 5
-```
-
 ### Arguments
 
 - `--themes` or `-t`: A list of themes for the quiz questions (e.g., `"Harry Potter" "Rocket Science"`).
 - `--num_questions` or `-n`: The number of questions to generate for each theme (default: 5).
+- `--language` or `-l`: The language for the quiz questions (default: en). Supported options are:
+  - `en`: English
+  - `zh-tw`: Traditional Chinese (Taiwan translation convention)
+- `--output` or `-o`: The output file name for the generated quiz (default: `KahootQuizOutput.xlsx`).
 
 ### Example
 
-To generate 10 questions each for "Harry Potter" and "Space Exploration":
+To generate 10 questions each for "Harry Potter" and "Space Exploration" in English and save the output to `quiz.xlsx`:
 
 ```bash
-python main.py --themes "Harry Potter" "Space Exploration" --num_questions 10
+python main.py --themes "Harry Potter" "Space Exploration" --num_questions 10 --language en --output quiz.xlsx
 ```
 
-The generated quiz will be saved as `KahootQuizOutput.xlsx` in the project directory.
+The generated quiz will be saved as `quiz.xlsx` in the project directory.
 
 Then, you can import the generated Excel file to Kahoot to create your quiz. Have fun and enjoy!
