@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import json
 import logging
 import random
@@ -19,35 +20,40 @@ language_mapping = {
     'zh-tw': 'Traditional Chinese, using the translation convention in Taiwan'
 }
 
-def main(themes: list[str], num_questions: int, language: str, output_path: str) -> None:
+async def fetch_questions(
+    client: OpenAI, theme: str, num_questions: int, language: str
+) -> list[dict[str, str]]:
+    logger.info(f'Generating questions for theme "{theme}"')
+    prompt = generate_prompt(theme, num_questions, language)
+    while True:
+        response = await asyncio.to_thread(client.responses.create, model='gpt-4o', input=prompt)
+        logger.info(f'Response for theme "{theme}": {response.output_text}')
+        try:
+            return json.loads(response.output_text)
+        except json.JSONDecodeError as e:
+            # sometimes the reasponse contains markdown syntax
+            try:
+                # try to remove markdown and parse again
+                cleaned_response = response.output_text.replace('```json', '').replace('```', '')
+                return json.loads(cleaned_response)
+            except json.JSONDecodeError:
+                logger.error(f"Failed to decode JSON: {e}")
+                logger.info("Retrying with the same prompt...")
+
+async def main(args: argparse.Namespace) -> None:
     # load OPENAI_API_KEY from .env file
     load_dotenv()
     client = OpenAI()
 
-    questions = []
-    for theme in themes:
-        prompt = generate_prompt(theme, num_questions, language)
-        while True:
-            response = client.responses.create(model='gpt-4o', input=prompt)
-            logger.info(f'Response for theme "{theme}": {response.output_text}')
-            try:
-                questions.extend(json.loads(response.output_text))
-                break
-            except json.JSONDecodeError as e:
-                # sometimes the reasponse contains markdown
-                try:
-                    # try to remove markdown and parse again
-                    cleaned_response = response.output_text.replace('```json', '') \
-                                                           .replace('```', '')
-                    questions.extend(json.loads(cleaned_response))
-                    break
-                except json.JSONDecodeError:
-                    logger.error(f"Failed to decode JSON: {e}")
-                    logger.info("Retrying with the same prompt...")
+    tasks = [
+        fetch_questions(client, theme, args.num_questions, args.language) for theme in args.themes
+    ]
+    results = await asyncio.gather(*tasks)
 
+    questions = [question for result in results for question in result]
     random.shuffle(questions)
 
-    generate_kahoot_quiz_xlsx(questions, output_path)
+    generate_kahoot_quiz_xlsx(questions, args.output_path)
 
 def generate_prompt(theme: str, num_questions: int, language: str) -> str:
     with open('prompt.txt', 'r') as file:
@@ -112,4 +118,4 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    main(args.themes, args.num_questions, args.language, args.output)
+    asyncio.run(main(args))
