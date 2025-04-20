@@ -37,8 +37,8 @@ async def fetch_questions(
                 cleaned_response = response.output_text.replace('```json', '').replace('```', '')
                 return json.loads(cleaned_response)
             except json.JSONDecodeError:
-                logger.error(f"Failed to decode JSON: {e}")
-                logger.info("Retrying with the same prompt...")
+                logger.error(f'Failed to decode JSON: {e}')
+                logger.info('Retrying with the same prompt...')
 
 async def main(args: argparse.Namespace) -> None:
     # load OPENAI_API_KEY from .env file
@@ -90,7 +90,7 @@ def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]], output_path: str)
     workbook.save(output_path)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Generate themed quiz questions using LLM.")
+    parser = argparse.ArgumentParser(description='Generate themed quiz questions using LLM.')
     parser.add_argument(
         '--themes', '-t',
         nargs='+',
@@ -101,20 +101,20 @@ if __name__ == '__main__':
         '--num_questions', '-n',
         type=int,
         default=5,
-        help="Number of questions to generate for each theme"
+        help='Number of questions to generate for each theme'
     )
     parser.add_argument(
         '--language', '-l',
         type=str,
         default='en',
         choices=['en', 'zh-tw'],
-        help="Language for the quiz questions (default: English)"
+        help='Language for the quiz questions (default: English)'
     )
     parser.add_argument(
         '--output', '-o',
         type=str,
         default='KahootQuizOutput.xlsx',
-        help="Output file name for the generated quiz"
+        help='Output file name for the generated quiz'
     )
     args = parser.parse_args()
 
