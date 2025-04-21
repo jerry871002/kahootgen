@@ -1,13 +1,64 @@
 import asyncio
+import json
+import time
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
 import openpyxl
 
-from main import generate_kahoot_quiz_xlsx, generate_prompt, main
+from main import fetch_questions, generate_kahoot_quiz_xlsx, generate_prompt, main
 
 
 class TestMainFunctions(unittest.TestCase):
+
+    def create_mock_response(self, *args, **kwargs):
+        """Mock function that sleeps for 2 seconds and returns a response"""
+        # Simulate API delay
+        time.sleep(2)
+
+        mock_response = MagicMock()
+        mock_response.output_text = json.dumps([
+            {
+                "question": "Test question 1?",
+                "options": ["Test option 1", "Test option 2", "Test option 3", "Test option 4"],
+                "answer": "Test answer 1"
+            },
+            {
+                "question": "Test question 2?",
+                "options": ["Test option 1", "Test option 2", "Test option 3", "Test option 4"],
+                "answer": "Test answer 2"
+            }
+        ])
+
+        return mock_response
+
+    @patch('main.generate_prompt')
+    @patch("main.OpenAI")
+    def test_fetch_questions(self, mock_openai, mock_generate_prompt):
+        mock_generate_prompt.return_value = "Test prompt"
+        client = mock_openai.return_value
+        client.responses.create = self.create_mock_response
+
+        themes = [f'Theme {i}' for i in range(5)]
+        num_questions = 2
+        language = "en"
+
+        async def run_test():
+            tasks = [
+                fetch_questions(client, theme, num_questions, language) for theme in themes
+            ]
+            results = await asyncio.gather(*tasks)
+            self.assertEqual(len(results), len(themes))
+
+        # Measure the time taken for the test
+        start_time = time.time()
+        asyncio.run(run_test())
+        end_time = time.time()
+        duration = end_time - start_time
+
+        # The API calls should run concurrently
+        self.assertAlmostEqual(duration, 2, delta=1)
+
     def test_generate_prompt(self):
         theme = "Science"
         num_questions = 5
