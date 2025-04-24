@@ -6,10 +6,10 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import openpyxl
 
-from main import fetch_questions, generate_kahoot_quiz_xlsx, generate_prompt, main
+from kahootgen.main import fetch_questions, generate_kahoot_quiz_xlsx, generate_prompt, main
 
 
-class TestMainFunctions(unittest.TestCase):
+class TestKahootGen(unittest.TestCase):
 
     def create_mock_response(self, *args, **kwargs):
         """Mock function that sleeps for 2 seconds and returns a response"""
@@ -32,8 +32,8 @@ class TestMainFunctions(unittest.TestCase):
 
         return mock_response
 
-    @patch('main.generate_prompt')
-    @patch("main.OpenAI")
+    @patch('kahootgen.main.generate_prompt')
+    @patch("kahootgen.main.OpenAI")
     def test_fetch_questions(self, mock_openai, mock_generate_prompt):
         mock_generate_prompt.return_value = "Test prompt"
         client = mock_openai.return_value
@@ -93,9 +93,9 @@ class TestMainFunctions(unittest.TestCase):
         self.assertEqual(sheet["F9"].value, "Madrid")
         self.assertEqual(sheet["H9"].value, 1)
 
-    @patch("main.fetch_questions")
-    @patch("main.generate_kahoot_quiz_xlsx")
-    @patch("main.OpenAI")
+    @patch("kahootgen.main.fetch_questions")
+    @patch("kahootgen.main.generate_kahoot_quiz_xlsx")
+    @patch("kahootgen.main.OpenAI")
     def test_main(self, mock_openai, mock_generate_xlsx, mock_fetch_questions):
         mock_fetch_questions.return_value = [
             {"question": "Sample question", "options": ["A", "B", "C", "D"], "answer": "A"}
@@ -107,11 +107,8 @@ class TestMainFunctions(unittest.TestCase):
         args.language = "en"
         args.output_path = "output.xlsx"
 
-        with patch("main.load_dotenv"):
+        with patch("kahootgen.main.load_dotenv"):
             asyncio.run(main(args))
 
         mock_fetch_questions.assert_called_once()
         mock_generate_xlsx.assert_called_once()
-
-if __name__ == "__main__":
-    unittest.main()
