@@ -11,17 +11,17 @@ from dotenv import load_dotenv
 from openai import OpenAI  # type: ignore
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 language_mapping = {
     'en': 'English',
-    'zh-tw': 'Traditional Chinese, using the translation convention in Taiwan'
+    'zh-tw': 'Traditional Chinese, using the translation convention in Taiwan',
 }
 
 project_root = Path(__file__).parent.parent
+
 
 async def fetch_questions(
     client: OpenAI, theme: str, num_questions: int, language: str
@@ -43,6 +43,7 @@ async def fetch_questions(
                 logger.error(f'Failed to decode JSON: {e}')
                 logger.info('Retrying with the same prompt...')
 
+
 async def main(args: argparse.Namespace) -> None:
     # load OPENAI_API_KEY from .env file
     load_dotenv()
@@ -58,6 +59,7 @@ async def main(args: argparse.Namespace) -> None:
 
     generate_kahoot_quiz_xlsx(questions, args.output)
 
+
 def generate_prompt(theme: str, num_questions: int, language: str) -> str:
     with open(project_root / 'kahootgen' / 'prompt.txt', 'r') as file:
         prompt = file.read()
@@ -67,6 +69,7 @@ def generate_prompt(theme: str, num_questions: int, language: str) -> str:
     prompt = prompt.replace('<LANGUAGE>', language_mapping[language])
 
     return prompt
+
 
 def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]], output_path: str) -> None:
     template_path = project_root / 'KahootQuizTemplate.xlsx'
@@ -92,36 +95,44 @@ def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]], output_path: str)
 
     workbook.save(output_path)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate themed quiz questions using LLM.')
     parser.add_argument(
-        '--themes', '-t',
+        '--themes',
+        '-t',
         nargs='+',
         required=True,
-        help='List of themes for quiz questions (e.g., "Harry Potter" "Rocket Science")'
+        help='List of themes for quiz questions (e.g., "Harry Potter" "Rocket Science")',
     )
     parser.add_argument(
-        '--num-questions', '-n',
+        '--num-questions',
+        '-n',
         type=int,
         default=5,
-        help='Number of questions to generate for each theme'
+        help='Number of questions to generate for each theme',
     )
     parser.add_argument(
-        '--language', '-l',
+        '--language',
+        '-l',
         type=str,
         default='en',
         choices=['en', 'zh-tw'],
-        help='Language for the quiz questions (default: English)'
+        help='Language for the quiz questions (default: English)',
     )
     parser.add_argument(
-        '--output', '-o',
+        '--output',
+        '-o',
         type=str,
         default='KahootQuizOutput.xlsx',
-        help='Output file name for the generated quiz'
+        help='Output file name for the generated quiz',
     )
     args = parser.parse_args()
 
     if args.num_questions <= 0:
-        parser.error("--num-questions must be greater than 0")
+        parser.error('--num-questions must be greater than 0')
+
+    if set(args.themes) == {''}:
+        parser.error('--themes must not be empty')
 
     asyncio.run(main(args))

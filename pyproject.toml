@@ -7,3 +7,6 @@ select = [
     "F",  # flake8
     "I"  # isort
 ]
+
+[tool.ruff.format]
+quote-style = "single"
