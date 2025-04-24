@@ -101,7 +101,7 @@ if __name__ == '__main__':
         help='List of themes for quiz questions (e.g., "Harry Potter" "Rocket Science")'
     )
     parser.add_argument(
-        '--num_questions', '-n',
+        '--num-questions', '-n',
         type=int,
         default=5,
         help='Number of questions to generate for each theme'
@@ -120,5 +120,8 @@ if __name__ == '__main__':
         help='Output file name for the generated quiz'
     )
     args = parser.parse_args()
+
+    if args.num_questions <= 0:
+        parser.error("--num-questions must be greater than 0")
 
     asyncio.run(main(args))
