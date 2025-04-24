@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import random
+from pathlib import Path
 from typing import Any
 
 import openpyxl  # type: ignore
@@ -19,6 +20,8 @@ language_mapping = {
     'en': 'English',
     'zh-tw': 'Traditional Chinese, using the translation convention in Taiwan'
 }
+
+project_root = Path(__file__).parent.parent
 
 async def fetch_questions(
     client: OpenAI, theme: str, num_questions: int, language: str
@@ -53,10 +56,10 @@ async def main(args: argparse.Namespace) -> None:
     questions = [question for result in results for question in result]
     random.shuffle(questions)
 
-    generate_kahoot_quiz_xlsx(questions, args.output_path)
+    generate_kahoot_quiz_xlsx(questions, args.output)
 
 def generate_prompt(theme: str, num_questions: int, language: str) -> str:
-    with open('prompt.txt', 'r') as file:
+    with open(project_root / 'kahootgen' / 'prompt.txt', 'r') as file:
         prompt = file.read()
 
     prompt = prompt.replace('<THEME>', theme)
@@ -66,7 +69,7 @@ def generate_prompt(theme: str, num_questions: int, language: str) -> str:
     return prompt
 
 def generate_kahoot_quiz_xlsx(questions: list[dict[str, Any]], output_path: str) -> None:
-    template_path = 'KahootQuizTemplate.xlsx'
+    template_path = project_root / 'KahootQuizTemplate.xlsx'
     workbook = openpyxl.load_workbook(template_path)
     sheet = workbook['Sheet1']
 
