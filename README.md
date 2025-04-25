@@ -6,7 +6,7 @@ With a single command, KahootGen allows you to create engaging quizzes for vario
 
 ## Features
 
-- **Effortless Quiz Creation**: Generate high-quality quiz questions with just a few commands.
+- **Effortless Quiz Creation**: Generate high-quality quiz questions with just one command.
 - **Customizable Themes**: Create quizzes tailored to your favorite topics or educational needs.
 - **Kahoot-Ready Output**: Automatically formats questions into a Kahoot-compatible Excel file for seamless import.
 - **AI-Powered**: Leverages OpenAI's GPT model to ensure engaging and accurate question generation.
@@ -43,7 +43,7 @@ With a single command, KahootGen allows you to create engaging quizzes for vario
 ### Arguments
 
 - `--themes` or `-t`: A list of themes for the quiz questions (e.g., `"Harry Potter" "Rocket Science"`).
-- `--num_questions` or `-n`: The number of questions to generate for each theme (default: 5).
+- `--num-questions` or `-n`: The number of questions to generate for each theme (default: 5).
 - `--language` or `-l`: The language for the quiz questions (default: en). Supported options are:
   - `en`: English
   - `zh-tw`: Traditional Chinese (Taiwan translation convention)
@@ -55,7 +55,7 @@ To generate 10 questions each for "Harry Potter" and "Space Exploration" in Engl
 
 ```bash
 # from the project root directory
-python kahootgen/main.py --themes "Harry Potter" "Space Exploration" --num_questions 10 --language en --output quiz.xlsx
+python kahootgen/main.py --themes "Harry Potter" "Space Exploration" --num-questions 10 --language en --output quiz.xlsx
 ```
 
 The generated quiz will be saved as `quiz.xlsx` in the project directory.
